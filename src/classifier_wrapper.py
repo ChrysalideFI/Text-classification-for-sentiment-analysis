@@ -3,7 +3,8 @@ from tqdm import tqdm
 
 from config import Config
 
-from llm_classifier import LLMClassifier
+# from llm_classifier import LLMClassifier
+from PLMFT_Classifier import PLMFTClassifier
 
 class ClassifierWrapper:
 
@@ -16,7 +17,7 @@ class ClassifierWrapper:
     #############################################################################################
     def __init__(self, cfg: Config):
         self.cfg = cfg
-        self.classifier = LLMClassifier(cfg) # perso : remplacer par le bon classifier ex: "PLMFTClassifier(cfg)"
+        self.classifier = PLMFTClassifier(cfg) # remplacer par le bon classifier : "LLMClassifier(cfg)" ou "PLMFTClassifier(cfg)"
 
 
     #############################################################################################
