@@ -6,6 +6,15 @@ from config import Config
 # from llm_classifier import LLMClassifier
 from PLMFT_Classifier import PLMFTClassifier
 
+import re
+
+def preprocess_text(text):
+    # Enlever les emojis 
+    text = re.sub(r'[^\w\s,.!?;:]', '', text)
+    # Mettre en minuscules
+    text = text.lower()
+    return text
+
 class ClassifierWrapper:
 
     # METTRE LA BONNE VALEUR ci-dessous en fonction de la méthode utilisée
@@ -31,6 +40,11 @@ class ClassifierWrapper:
         -1 veut deire que le device est la cpu, et un nombre entier >= 0 indiquera le numéro de la gpu
         :return:
         """
+        for data in train_data:
+            data['text'] = preprocess_text(data['text'])
+
+        for data in val_data:
+            data['text'] = preprocess_text(data['text'])
         # Mettre tout ce qui est nécessaire pour entrainer le modèle ici, sauf si methode=LLM en zéro-shot
         # auquel cas pas d'entrainement du tout
         pass
@@ -52,7 +66,8 @@ class ClassifierWrapper:
         # mais si on utilise un PLMFT, il vaut mieux traiter les avis par batch pour que ce soit plus
         # rapide
         for text in tqdm(texts):
-            opinions = self.classifier.predict(text)
+            preprocessed_text = preprocess_text(text)
+            opinions = self.classifier.predict(preprocessed_text)
             all_opinions.append(opinions)
         return all_opinions
 
