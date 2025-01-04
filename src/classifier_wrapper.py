@@ -62,12 +62,12 @@ class ClassifierWrapper:
         :return:
         """
         all_opinions = []
-        # Comme ici on utilise un llm avce ollama, on procèdera en traitant les textes d'avis un à un
-        # mais si on utilise un PLMFT, il vaut mieux traiter les avis par batch pour que ce soit plus
-        # rapide
-        for text in tqdm(texts):
-            preprocessed_text = preprocess_text(text)
-            opinions = self.classifier.predict(preprocessed_text)
-            all_opinions.append(opinions)
+        preprocessed_texts = [preprocess_text(text) for text in texts]
+        if self.METHOD == 'PLMFT':
+            batch_predictions = self.classifier.predict(preprocessed_texts, device)
+            all_opinions.extend(batch_predictions)
+        else:
+            for text in tqdm(preprocessed_texts):
+                opinions = self.classifier.predict(text)
+                all_opinions.append(opinions)
         return all_opinions
-
