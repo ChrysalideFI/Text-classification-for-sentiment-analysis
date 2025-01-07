@@ -81,3 +81,11 @@ classes = ["Positive", "Négative", "Neutre", "NE"]
 
 # Préparer les données
 dataset = prepare_data('data/ftdataset_train.tsv', model.lmtokenizer, aspects, classes)
+
+# Préparer les données de validation
+val_dataset = prepare_data('data/ftdataset_val.tsv', model.lmtokenizer, aspects, classes)
+
+# Préparer les données de test
+test_dataset = prepare_data('data/ftdataset_test.tsv', model.lmtokenizer, aspects, classes)
+
+print ("Data prepared successfully!")
