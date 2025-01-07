@@ -9,12 +9,12 @@ from PLMFT_Classifier import PLMFTClassifier
 import re
 import torch
 
-def preprocess_text(text):
+def preprocess_text(Avis):
     # Enlever les emojis 
-    text = re.sub(r'[^\w\s,.!?;:]', '', text)
+    Avis = re.sub(r'[^\w\s,.!?;:]', '', Avis)
     # Mettre en minuscules
-    text = text.lower()
-    return text
+    Avis = Avis.lower()
+    return Avis
 
 class ClassifierWrapper:
 
@@ -43,10 +43,10 @@ class ClassifierWrapper:
         :return:
         """
         for data in train_data:
-            data['text'] = preprocess_text(data['text'])
+            data['Avis'] = preprocess_text(data['Avis'])
 
         for data in val_data:
-            data['text'] = preprocess_text(data['text'])
+            data['Avis'] = preprocess_text(data['Avis'])
         # Mettre tout ce qui est nécessaire pour entrainer le modèle ici, sauf si methode=LLM en zéro-shot
         # auquel cas pas d'entrainement du tout
 
@@ -109,12 +109,12 @@ class ClassifierWrapper:
         :return:
         """
         all_opinions = []
-        preprocessed_texts = [preprocess_text(text) for text in texts]
+        preprocessed_texts = [preprocess_text(Avis) for Avis in texts]
         if self.METHOD == 'PLMFT':
             batch_predictions = self.classifier.predict(preprocessed_texts, device)
             all_opinions.extend(batch_predictions)
         else:
-            for text in tqdm(preprocessed_texts):
-                opinions = self.classifier.predict(text)
+            for Avis in tqdm(preprocessed_texts):
+                opinions = self.classifier.predict(Avis)
                 all_opinions.append(opinions)
         return all_opinions

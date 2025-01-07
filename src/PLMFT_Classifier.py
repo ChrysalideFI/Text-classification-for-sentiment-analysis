@@ -135,7 +135,7 @@ class PLMFTClassifier(torch.nn.Module):
             return label_vector
 
         df['labels'] = df.apply(lambda row: encode_labels(row, aspects, classes), axis=1)
-        encodings = tokenizer(df['text'].tolist(), truncation=True, padding=True, return_tensors="pt")
+        encodings = tokenizer(df['Avis'].tolist(), truncation=True, padding=True, return_tensors="pt")
 
         class SentimentDataset(torch.utils.data.Dataset):
             def __init__(self, encodings, labels):
