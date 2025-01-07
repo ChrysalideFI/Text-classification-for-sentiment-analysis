@@ -62,49 +62,71 @@ class TransformerMultiLabelClassifier(torch.nn.Module):
 
         return all_predictions
 
+    def train(self, file_path, aspects, classes, device, epochs=3, batch_size=32, learning_rate=1e-5):
+        # Charger les données depuis un fichier TSV
+        df = pd.read_csv(file_path, delimiter='\t')
+
+        # Fonction pour encoder les labels
+        def encode_labels(row, aspects, classes):
+            label_vector = []
+            for aspect in aspects:
+                for cls in classes:
+                    label_vector.append(1 if row[aspect] == cls else 0)
+            return label_vector
+
+        # Appliquer l'encodage des labels
+        df['labels'] = df.apply(lambda row: encode_labels(row, aspects, classes), axis=1)
+
+        # Tokeniser les textes
+        encodings = self.lmtokenizer(df['Avis'].tolist(), truncation=True, padding=True, return_tensors="pt")
+
+        # Créer les datasets PyTorch
+        class SentimentDataset(torch.utils.data.Dataset):
+            def __init__(self, encodings, labels):
+                self.encodings = encodings
+                self.labels = labels
+
+            def __getitem__(self, idx):
+                item = {key: val[idx] for key, val in self.encodings.items()}
+                item['labels'] = torch.tensor(self.labels[idx], dtype=torch.float)
+                return item
+
+            def __len__(self):
+                return len(self.labels)
+
+        # Créer les datasets
+        labels = df['labels'].tolist()
+        dataset = SentimentDataset(encodings, labels)
+
+        # Préparer le modèle pour l'entraînement
+        self.train()
+        self.to(device)
+
+        # Créer un DataLoader pour l'ensemble de données
+        dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+        # Définir l'optimiseur
+        optimizer = torch.optim.AdamW(self.parameters(), lr=learning_rate)
+
+        # Boucle d'entraînement
+        for epoch in range(epochs):
+            total_loss = 0
+            for batch in dataloader:
+                optimizer.zero_grad()
+                input_ids, attention_mask, labels = batch['input_ids'].to(device), batch['attention_mask'].to(device), batch['labels'].to(device)
+                outputs = self.forward({'input_ids': input_ids, 'attention_mask': attention_mask})
+                loss = self.compute_loss(outputs, labels)
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
+            
+            print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss / len(dataloader)}")
+
 # Nom du modèle pré-entraîné
 plm_name = 'SiddharthaM/hasoc19-bert-base-multilingual-cased-sentiment-new'
 
 # Initialiser le modèle
 model = TransformerMultiLabelClassifier(plm_name)
-
-# Préparation des données
-def prepare_data(file_path, tokenizer, aspects, classes):
-    # Charger les données depuis un fichier TSV
-    df = pd.read_csv(file_path, delimiter='\t')
-
-    # Fonction pour encoder les labels
-    def encode_labels(row, aspects, classes):
-        label_vector = []
-        for aspect in aspects:
-            for cls in classes:
-                label_vector.append(1 if row[aspect] == cls else 0)
-        return label_vector
-
-    # Appliquer l'encodage des labels
-    df['labels'] = df.apply(lambda row: encode_labels(row, aspects, classes), axis=1)
-
-    # Tokeniser les textes
-    encodings = tokenizer(df['Avis'].tolist(), truncation=True, padding=True, return_tensors="pt")
-
-    # Créer les datasets PyTorch
-    class SentimentDataset(torch.utils.data.Dataset):
-        def __init__(self, encodings, labels):
-            self.encodings = encodings
-            self.labels = labels
-
-        def __getitem__(self, idx):
-            item = {key: val[idx] for key, val in self.encodings.items()}
-            item['labels'] = torch.tensor(self.labels[idx], dtype=torch.float)
-            return item
-
-        def __len__(self):
-            return len(self.labels)
-
-    # Créer les datasets
-    labels = df['labels'].tolist()
-    dataset = SentimentDataset(encodings, labels)
-    return dataset
 
 # Définir les aspects et les classes
 aspects = ["Cuisine", "Ambiance", "Service", "Prix"]

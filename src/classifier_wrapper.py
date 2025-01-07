@@ -7,6 +7,7 @@ from config import Config
 from PLMFT_Classifier import PLMFTClassifier
 
 import re
+import torch
 
 def preprocess_text(text):
     # Enlever les emojis 
@@ -47,7 +48,22 @@ class ClassifierWrapper:
             data['text'] = preprocess_text(data['text'])
         # Mettre tout ce qui est nécessaire pour entrainer le modèle ici, sauf si methode=LLM en zéro-shot
         # auquel cas pas d'entrainement du tout
-        pass
+
+        if self.METHOD == 'PLMFT':
+            # Sauvegarder les données d'entraînement dans un fichier temporaire
+            train_file_path = 'train_data.tsv'
+            train_df = DataFrame(train_data)
+            train_df.to_csv(train_file_path, sep='\t', index=False)
+
+            # Définir les aspects et les classes
+            aspects = ["Cuisine", "Ambiance", "Service", "Prix"]
+            classes = ["Positive", "Négative", "Neutre", "NE"]
+
+            # Définir le dispositif (GPU ou CPU)
+            device = torch.device(f'cuda:{device}' if device >= 0 else 'cpu')
+
+            # Entraîner le modèle
+            self.classifier.train(train_file_path, aspects, classes, device)
 
 
 
