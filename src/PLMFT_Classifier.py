@@ -152,9 +152,9 @@ class PLMFTClassifier(torch.nn.Module):
         
         labels = df['labels'].tolist()
         dataset = SentimentDataset(encodings, labels)
+        print("Data prepared successfully!")
         return dataset
-
-    print("Data prepared successfully!")
+        
 # # Nom du modèle pré-entraîné
 # plm_name = 'SiddharthaM/hasoc19-bert-base-multilingual-cased-sentiment-new'
 

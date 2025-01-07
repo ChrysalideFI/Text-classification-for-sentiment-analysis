@@ -31,6 +31,35 @@ class ClassifierWrapper:
         self.cfg.plm_name = 'SiddharthaM/hasoc19-bert-base-multilingual-cased-sentiment-new' #Modèle HuggingFace à utiliser
         self.classifier = PLMFTClassifier(cfg) # remplacer par le bon classifier : "LLMClassifier(cfg)" ou "PLMFTClassifier(cfg)"
 
+    def prepare_data(self, data: list[dict], aspects: list[str], classes: list[str]):
+        df = DataFrame(data)
+
+        def encode_labels(row, aspects, classes):
+            label_vector = []
+            for aspect in aspects:
+                for cls in classes:
+                    label_vector.append(1 if row[aspect] == cls else 0)
+            return label_vector
+        df['labels'] = df.apply(lambda row: encode_labels(row, aspects, classes), axis=1)
+        encodings = self.classifier.lmtokenizer(df['avis'].tolist(), truncation=True, padding=True, return_tensors="pt")
+
+        class SentimentDataset(torch.utils.data.Dataset):
+            def __init__(self, encodings, labels):
+                self.encodings = encodings
+                self.labels = labels
+
+            def __getitem__(self, idx):
+                item = {key: val[idx] for key, val in self.encodings.items()}
+                item['labels'] = torch.tensor(self.labels[idx], dtype=torch.float)
+                return item
+
+            def __len__(self):
+                return len(self.labels)
+
+        labels = df['labels'].tolist()
+        dataset = SentimentDataset(encodings, labels)
+        return dataset
+    
     #############################################################################################
     # NE PAS MODIFIER LA SIGNATURE DE CETTE FONCTION, Vous pouvez modifier son contenu si besoin
     #############################################################################################
