@@ -31,6 +31,37 @@ class TransformerMultiLabelClassifier(torch.nn.Module):
     def compute_loss(self, predictions, target):
         return self.loss_fn(predictions, target)
 
+    def _format_predictions(self, predictions):
+        aspects = ["Cuisine", "Ambiance", "Service", "Prix"]
+        classes = ["Positive", "Négative", "Neutre", "NE"]
+        formatted_predictions = []
+        for pred in predictions:
+            labels = {}
+            for i, aspect in enumerate(aspects):
+                aspect_scores = pred[i*4:(i+1)*4]
+                max_score_idx = aspect_scores.index(max(aspect_scores))
+                labels[aspect] = classes[max_score_idx]
+            formatted_predictions.append(labels)
+        return formatted_predictions
+
+    def predict(self, texts, device, batch_size=32):
+        self.eval()
+        encodings = self.lmtokenizer(texts, truncation=True, padding=True, return_tensors="pt")
+        dataset = torch.utils.data.TensorDataset(encodings['input_ids'], encodings['attention_mask'])
+        dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
+
+        all_predictions = []
+        device = torch.device(f'cuda:{device}' if device >= 0 else 'cpu')
+        self.to(device)
+        with torch.no_grad():
+            for batch in dataloader:
+                input_ids, attention_mask = [t.to(device) for t in batch]
+                outputs = self.forward({'input_ids': input_ids, 'attention_mask': attention_mask})
+                formatted_outputs = self._format_predictions(outputs.cpu().numpy().tolist())
+                all_predictions.extend(formatted_outputs)
+
+        return all_predictions
+
 # Nom du modèle pré-entraîné
 plm_name = 'SiddharthaM/hasoc19-bert-base-multilingual-cased-sentiment-new'
 
