@@ -7,34 +7,131 @@ import json
 from config import Config
 
 
-_PROMPT_TEMPLATE = """Considérez l'avis suivant:
+# _PROMPT_TEMPLATE = """Considérez l'avis suivant:
 
-"{{text}}"
+# "{{text}}"
 
-Quelle est la valeur de l'opinion exprimée sur chacun des aspects suivants : Prix, Cuisine, Service, Ambiance?
+# Quelle est la valeur de l'opinion exprimée sur chacun des aspects suivants : Prix, Cuisine, Service, Ambiance?
 
-La valeur d'une opinion doit être une des valeurs suivantes: "Positive", "Négative", "Neutre", ou "Non exprimée".
+# La valeur d'une opinion doit être une des valeurs suivantes: "Positive", "Négative", "Neutre", ou "Non exprimée".
 
-La réponse doit se limiter au format json suivant:
-{ "Prix": opinion, "Cuisine": opinion, "Service": opinion, "Ambiance": opinion}."""
+# La réponse doit se limiter au format json suivant:
+# { "Prix": opinion, "Cuisine": opinion, "Service": opinion, "Ambiance": opinion}."""
+#AVG MACRO ACC: 66.67 TOTAL EXEC TIME: 719.0
 
 # _PROMPT_TEMPLATE = """Considérez l'avis suivant :
-#"{{text}}"
-#Analysez et déterminez l'opinion exprimée sur les aspects suivants : 
-#- Prix
-#- Cuisine
-#- Service
-#- Ambiance
-#Les valeurs possibles sont : "Positive", "Négative", "Neutre" ou "Non exprimée".
-#Répondez uniquement en format JSON comme suit :
-#{
+# "{{text}}"
+# Analysez et déterminez l'opinion exprimée sur les aspects suivants : 
+# - Prix
+# - Cuisine
+# - Service
+# - Ambiance
+# Les valeurs possibles sont : "Positive", "Négative", "Neutre" ou "Non exprimée".
+# Répondez uniquement en format JSON comme suit :
+# {
 #  "Prix": "valeur",
 #  "Cuisine": "valeur",
 #  "Service": "valeur",
 #  "Ambiance": "valeur"
-#}
-#"""
+# }
+# """
+#AVG MACRO ACC: 78.34 TOTAL EXEC TIME: 568.2
 
+# _PROMPT_TEMPLATE = """Analysez l'avis suivant :
+# "{{text}}"
+# Déterminez si les aspects suivants sont exprimés et leur opinion correspondante : 
+# - Prix
+# - Cuisine
+# - Service
+# - Ambiance.
+# Utilisez ces valeurs : "Positive", "Négative", "Neutre", "Non exprimée".
+# Répondez uniquement en JSON :
+# {
+#   "Prix": "valeur",
+#   "Cuisine": "valeur",
+#   "Service": "valeur",
+#   "Ambiance": "valeur"
+# }
+# """
+# AVG MACRO ACC: 82.5 TOTAL EXEC TIME: 602.3
+
+#_PROMPT_TEMPLATE = """Voici un exemple d’analyse :
+# Avis : "La nourriture était délicieuse, mais le service était lent. Les prix sont abordables et l'ambiance chaleureuse."
+# Résultat :
+# {
+#   "Prix": "Positive",
+#   "Cuisine": "Positive",
+#   "Service": "Négative",
+#   "Ambiance": "Positive"
+# }
+# Maintenant, analysez cet avis :
+# "{{text}}"
+# Répondez en JSON :
+# {
+#   "Prix": "valeur",
+#   "Cuisine": "valeur",
+#   "Service": "valeur",
+#   "Ambiance": "valeur"
+# }
+# """
+# AVG MACRO ACC: 42.5 TOTAL EXEC TIME: 1172.5
+
+# _PROMPT_TEMPLATE = """Considérez l'avis :
+# "{{text}}"
+# Donnez une opinion sur les aspects suivants (Prix, Cuisine, Service, Ambiance) avec une des valeurs : 
+# "Positive", "Négative", "Neutre", "Non exprimée".
+# Format de réponse strictement en JSON, maximum 4 lignes :
+# {
+#   "Prix": "valeur",
+#   "Cuisine": "valeur",
+#   "Service": "valeur",
+#   "Ambiance": "valeur"
+# }
+# """
+# AVG MACRO ACC: 58.34 TOTAL EXEC TIME: 553.5
+
+# _PROMPT_TEMPLATE = """Voici un avis à analyser :
+# "{{text}}"
+# Pour chaque aspect suivant, indiquez l'opinion exprimée :
+# - Prix
+# - Cuisine
+# - Service
+# - Ambiance
+# Utilisez uniquement l'une de ces valeurs : 
+# - "Positive"
+# - "Négative"
+# - "Neutre"
+# - "Non exprimée"
+# Assurez-vous que chaque aspect a exactement une valeur. Répondez uniquement en JSON dans ce format strict :
+# {
+#   "Prix": "valeur",
+#   "Cuisine": "valeur",
+#   "Service": "valeur",
+#   "Ambiance": "valeur"
+# }
+# """
+# AVG MACRO ACC: 74.17 TOTAL EXEC TIME: 617.6
+
+# _PROMPT_TEMPLATE = """Exemple d'analyse :
+# Avis : "La nourriture est délicieuse, mais le service est lent."
+# Réponse :
+# {
+#   "Prix": "Non exprimée",
+#   "Cuisine": "Positive",
+#   "Service": "Négative",
+#   "Ambiance": "Non exprimée"
+# }
+# Analysez maintenant cet avis :
+# "{{text}}"
+# Répondez uniquement en JSON dans ce format strict :
+# {
+#   "Prix": "valeur",
+#   "Cuisine": "valeur",
+#   "Service": "valeur",
+#   "Ambiance": "valeur"
+# }
+# """
+# AVG MACRO ACC: 73.34 TOTAL EXEC TIME: 503.5
 
 class LLMClassifier:
 
