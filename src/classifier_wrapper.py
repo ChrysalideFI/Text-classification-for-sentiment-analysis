@@ -5,6 +5,7 @@ from config import Config
 
 # from llm_classifier import LLMClassifier
 from PLMFT_Classifier import PLMFTClassifier
+from llm_classifier import LLMClassifier
 
 import re
 import torch
@@ -19,7 +20,7 @@ def preprocess_text(Avis):
 class ClassifierWrapper:
 
     # METTRE LA BONNE VALEUR ci-dessous en fonction de la méthode utilisée
-    METHOD: str = 'PLMFT'
+    METHOD: str = 'LLM'
     # 'LLM'  # or 'PLMFT' (for Pretrained Language Model Fine-Tuning)
 
     #############################################################################################
@@ -28,9 +29,12 @@ class ClassifierWrapper:
     def __init__(self, cfg: Config):
         # self.plm_name='SiddharthaM/hasoc19-bert-base-multilingual-cased-sentiment-new'
         self.cfg = cfg
-        self.cfg.plm_name = "camembert-base"
-        # 'SiddharthaM/hasoc19-bert-base-multilingual-cased-sentiment-new' #Modèle HuggingFace à utiliser
-        self.classifier = PLMFTClassifier(cfg) # remplacer par le bon classifier : "LLMClassifier(cfg)" ou "PLMFTClassifier(cfg)"
+        if self.METHOD == 'PLMFT':
+            self.cfg.plm_name = "camembert-base"
+            # 'SiddharthaM/hasoc19-bert-base-multilingual-cased-sentiment-new' #Modèle HuggingFace à utiliser
+            self.classifier = PLMFTClassifier(cfg) # remplacer par le bon classifier : "LLMClassifier(cfg)" ou "PLMFTClassifier(cfg)"
+        else:
+            self.classifier = LLMClassifier(cfg)
  
     #############################################################################################
     # NE PAS MODIFIER LA SIGNATURE DE CETTE FONCTION, Vous pouvez modifier son contenu si besoin
