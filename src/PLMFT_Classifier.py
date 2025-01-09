@@ -63,56 +63,65 @@ class PLMFTClassifier(torch.nn.Module):
 
         return all_predictions
 
-    def train(self, file_path, aspects, classes, device, epochs=3, batch_size=32, learning_rate=1e-5):
-        # Charger les données depuis un fichier TSV
-        df = pd.read_csv(file_path, delimiter='\t')
-
-        # Fonction pour encoder les labels
-        def encode_labels(row, aspects, classes):
-            label_vector = []
-            for aspect in aspects:
-                for cls in classes:
-                    label_vector.append(1 if row[aspect] == cls else 0)
-            return label_vector
-
-        # Appliquer l'encodage des labels
-        df['labels'] = df.apply(lambda row: encode_labels(row, aspects, classes), axis=1)
-
+    # def train(self, train_data, val_data, device): 
+    def train(self, train_data, val_data, device, epochs=3, batch_size=32, learning_rate=1e-5):
+        # Charger les données depuis les listes de dictionnaires
+        df_train = pd.DataFrame(train_data)
+        df_val = pd.DataFrame(val_data)
+        
         # Tokeniser les textes
-        encodings = self.lmtokenizer(df['Avis'].tolist(), truncation=True, padding=True, return_tensors="pt")
+        train_encodings = self.lmtokenizer(
+            df_train['Avis'].tolist(),
+            truncation=True,
+            padding=True,
+            add_special_tokens=True,
+            return_tensors="pt"
+        )
+        val_encodings = self.lmtokenizer(
+            df_val['Avis'].tolist(),
+            truncation=True,
+            padding=True,
+            add_special_tokens=True,
+            return_tensors="pt"
+        )
+         # Extraire les labels
+        train_labels = df_train[['Prix', 'Cuisine', 'Service', 'Ambiance']].values
+        val_labels = df_val[['Prix', 'Cuisine', 'Service', 'Ambiance']].values
 
         # Créer les datasets PyTorch
         class SentimentDataset(torch.utils.data.Dataset):
             def __init__(self, encodings, labels):
                 self.encodings = encodings
-                self.labels = labels
+                self.labels = torch.tensor(labels, dtype=torch.float)
 
             def __getitem__(self, idx):
                 item = {key: val[idx] for key, val in self.encodings.items()}
-                item['labels'] = torch.tensor(self.labels[idx], dtype=torch.float)
+                item['labels'] = self.labels[idx]
                 return item
 
             def __len__(self):
                 return len(self.labels)
 
         # Créer les datasets
-        labels = df['labels'].tolist()
-        dataset = SentimentDataset(encodings, labels)
+        train_dataset = SentimentDataset(train_encodings, train_labels)
+        val_dataset = SentimentDataset(val_encodings, val_labels)
 
-        # Préparer le modèle pour l'entraînement
+        # Met le modèle en mode entraînement et le déplacer vers le device spécifié (CPU ou GPU)
         self.train()
         self.to(device)
 
-        # Créer un DataLoader pour l'ensemble de données
-        dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        # Création des dataloaders afin de charger les données en mini-batchs
+        # Ils permettent de mélanger les données et faire le chargement en parallèle ce qui devrait améliorer l'efficacité de l'entraînement
+        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
-        # Définir l'optimiseur
+        #Optimiseur
         optimizer = torch.optim.AdamW(self.parameters(), lr=learning_rate)
 
         # Boucle d'entraînement
         for epoch in range(epochs):
             total_loss = 0
-            for batch in dataloader:
+            for batch in train_loader:
                 optimizer.zero_grad()
                 input_ids, attention_mask, labels = batch['input_ids'].to(device), batch['attention_mask'].to(device), batch['labels'].to(device)
                 outputs = self.forward({'input_ids': input_ids, 'attention_mask': attention_mask})
@@ -121,62 +130,5 @@ class PLMFTClassifier(torch.nn.Module):
                 optimizer.step()
                 total_loss += loss.item()
             
-            print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss / len(dataloader)}")
-
-    # TEST code à suppr si besoin
-    def prepare_data(data, tokenizer, aspects, classes):
-        df = pd.DataFrame(data)
-
-        def encode_labels(row, aspects, classes):
-            label_vector = []
-            for aspect in aspects:
-                for cls in classes:
-                    label_vector.append(1 if row[aspect] == cls else 0)
-            return label_vector
-
-        df['labels'] = df.apply(lambda row: encode_labels(row, aspects, classes), axis=1)
-        encodings = tokenizer(df['Avis'].tolist(), truncation=True, padding=True, return_tensors="pt")
-
-        class SentimentDataset(torch.utils.data.Dataset):
-            def __init__(self, encodings, labels):
-                self.encodings = encodings
-                self.labels = labels
-
-            def __getitem__(self, idx):
-                item = {key: val[idx] for key, val in self.encodings.items()}
-                item['labels'] = torch.tensor(self.labels[idx], dtype=torch.float)
-                return item
-
-            def __len__(self):
-                return len(self.labels)
-        
-        labels = df['labels'].tolist()
-        dataset = SentimentDataset(encodings, labels)
-        print("Data prepared successfully!")
-        return dataset
-        
-# # Nom du modèle pré-entraîné
-# plm_name = 'SiddharthaM/hasoc19-bert-base-multilingual-cased-sentiment-new'
-
-# # Initialiser le modèle
-# model = TransformerMultiLabelClassifier(plm_name)
-
-# # Définir les aspects et les classes
-# aspects = ["Cuisine", "Ambiance", "Service", "Prix"]
-# classes = ["Positive", "Négative", "Neutre", "NE"]
-
-if __name__ == '__main__':
-    from classifier_wrapper import ClassifierWrapper
-    from config import Config
-
-    cfg = Config()
-    wrapper = ClassifierWrapper(cfg)
-
-    # Définir les aspects et les classes
-    aspects = ["Cuisine", "Ambiance", "Service", "Prix"]
-    classes = ["Positive", "Négative", "Neutre", "NE"]
-
-
-
-
-
+            print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss / len(train_loader)}")
+                
