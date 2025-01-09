@@ -18,6 +18,22 @@ La valeur d'une opinion doit être une des valeurs suivantes: "Positive", "Néga
 La réponse doit se limiter au format json suivant:
 { "Prix": opinion, "Cuisine": opinion, "Service": opinion, "Ambiance": opinion}."""
 
+# _PROMPT_TEMPLATE = """Considérez l'avis suivant :
+#"{{text}}"
+#Analysez et déterminez l'opinion exprimée sur les aspects suivants : 
+#- Prix
+#- Cuisine
+#- Service
+#- Ambiance
+#Les valeurs possibles sont : "Positive", "Négative", "Neutre" ou "Non exprimée".
+#Répondez uniquement en format JSON comme suit :
+#{
+#  "Prix": "valeur",
+#  "Cuisine": "valeur",
+#  "Service": "valeur",
+#  "Ambiance": "valeur"
+#}
+#"""
 
 
 class LLMClassifier:
@@ -64,27 +80,3 @@ class LLMClassifier:
                 return None
         else:
             return None
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
