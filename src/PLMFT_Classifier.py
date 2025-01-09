@@ -84,9 +84,30 @@ class PLMFTClassifier(torch.nn.Module):
             add_special_tokens=True,
             return_tensors="pt"
         )
-         # Extraire les labels
-        train_labels = df_train[['Prix', 'Cuisine', 'Service', 'Ambiance']].values
-        val_labels = df_val[['Prix', 'Cuisine', 'Service', 'Ambiance']].values
+
+         # Définir le mapping des labels
+        label_mapping = {
+            "Positive": 0,
+            "Négative": 1,
+            "Neutre": 2,
+            "NE": 3
+        }
+
+         # Convertir les labels en représentation numérique
+        def map_labels(row):
+            # return [label_mapping[row['Prix']], label_mapping[row['Cuisine']], label_mapping[row['Service']], label_mapping[row['Ambiance']]]
+            try:
+                return [label_mapping[row['Prix']], label_mapping[row['Cuisine']], label_mapping[row['Service']], label_mapping[row['Ambiance']]]
+            except KeyError as e:
+                print(f"Valeur inattendue trouvée dans les labels : {e}")
+                raise
+    
+        train_labels = df_train.apply(map_labels, axis=1).tolist()
+        val_labels = df_val.apply(map_labels, axis=1).tolist()
+
+        #  # Extraire les labels
+        # train_labels = df_train[['Prix', 'Cuisine', 'Service', 'Ambiance']].values
+        # val_labels = df_val[['Prix', 'Cuisine', 'Service', 'Ambiance']].values
 
         # Créer les datasets PyTorch
         class SentimentDataset(torch.utils.data.Dataset):
@@ -106,8 +127,11 @@ class PLMFTClassifier(torch.nn.Module):
         train_dataset = SentimentDataset(train_encodings, train_labels)
         val_dataset = SentimentDataset(val_encodings, val_labels)
 
+        # Convertir `device` en objet `torch.device`
+        device = torch.device(f'cuda:{device}' if device >= 0 else 'cpu')
+
         # Met le modèle en mode entraînement et le déplacer vers le device spécifié (CPU ou GPU)
-        self.train()
+        super().train()
         self.to(device)
 
         # Création des dataloaders afin de charger les données en mini-batchs
@@ -120,8 +144,11 @@ class PLMFTClassifier(torch.nn.Module):
 
         # Boucle d'entraînement
         for epoch in range(epochs):
+            print(f"Epoch {epoch + 1}/{epochs}")
+            print("Training en cours")
             total_loss = 0
             for batch in train_loader:
+                print("Batch en cours")
                 optimizer.zero_grad()
                 input_ids, attention_mask, labels = batch['input_ids'].to(device), batch['attention_mask'].to(device), batch['labels'].to(device)
                 outputs = self.forward({'input_ids': input_ids, 'attention_mask': attention_mask})

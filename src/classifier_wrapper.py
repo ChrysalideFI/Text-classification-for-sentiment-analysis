@@ -28,7 +28,8 @@ class ClassifierWrapper:
     def __init__(self, cfg: Config):
         # self.plm_name='SiddharthaM/hasoc19-bert-base-multilingual-cased-sentiment-new'
         self.cfg = cfg
-        self.cfg.plm_name = 'SiddharthaM/hasoc19-bert-base-multilingual-cased-sentiment-new' #Modèle HuggingFace à utiliser
+        self.cfg.plm_name = "camembert-base"
+        # 'SiddharthaM/hasoc19-bert-base-multilingual-cased-sentiment-new' #Modèle HuggingFace à utiliser
         self.classifier = PLMFTClassifier(cfg) # remplacer par le bon classifier : "LLMClassifier(cfg)" ou "PLMFTClassifier(cfg)"
  
     #############################################################################################
