@@ -143,7 +143,7 @@ Répondez uniquement en JSON dans ce format strict :
 AVG MACRO ACC: 73.34 
 
 ## Résultats
-Nous avons opté pour un prompt qui à atteint 80.6% d'accuracy moyenne en 876s. Nous seulement il s'agissait de notre prompt le plus précis mais aussi le plus rapide (le second prompt le plus précis a pris 936s). Voici le prompt sélectionné : 
+Nous avons opté pour un prompt qui à atteint 80.6% d'accuracy moyenne en 876s. Non seulement il s'agissait de notre prompt le plus précis mais aussi le plus rapide (le second prompt le plus précis a pris 936s). Voici le prompt sélectionné : 
 
 _PROMPT_TEMPLATE = """Analysez l'avis suivant :
 "{{text}}"
