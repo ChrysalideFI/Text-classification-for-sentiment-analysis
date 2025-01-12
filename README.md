@@ -16,6 +16,7 @@ La valeur d'une opinion doit être une des valeurs suivantes: "Positive", "Néga
 
 La réponse doit se limiter au format json suivant:
 { "Prix": opinion, "Cuisine": opinion, "Service": opinion, "Ambiance": opinion}."""
+
 AVG MACRO ACC: 66.67 
 
 _PROMPT_TEMPLATE = """Considérez l'avis suivant :
