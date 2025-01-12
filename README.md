@@ -1,8 +1,18 @@
 
-# Analyse de sentiment
+# Projet d'Analyse de sentiment
 
 Nous avons analyser l'opinion exprimée sur des avis de restaurant sur TripAdvisor. Pour se faire, nous avons d'abord opter pour l'approche de fine-tuning qui s'est avéré non concluante dans les temps imparties. 
 Nous avons donc choisi l'option du LLMClassifieur avec comme modèle le gemma2:2b. 
+
+# Présentation du classifieur
+Le classifieur LLMClassifier utilise un modèle de langage pré-entraîné (LLM) pour analyser les avis textuels et déterminer les opinions exprimées sur quatre aspects spécifiques : Prix, Cuisine, Service, et Ambiance. Il utilise des représentations textuelles basées sur des modèles de langage avancés. Le texte de l'avis est intégré dans un modèle de langage pré-entraîné, qui génère des représentations vectorielles des séquences de texte. Ces représentations sont ensuite utilisées pour prédire les opinions sur les différents aspects. L'architecture du classifieur repose sur un modèle de langage pré-entraîné, spécifiquement configuré pour la tâche de classification de texte. Le modèle utilisé est gemma2:2b. Le modèle est configuré pour générer des prédictions sous forme de JSON, indiquant les opinions sur les aspects spécifiés. Autre que les ressources précédemment mentionnés, nous nous somme servis de Ollama.
+
+## Hyper-paramètres
+Les principaux hyper-paramètres utilisés dans le classifieur sont les suivants :
+
+* num_predict : 500 (nombre maximum de tokens à prédire)
+* temperature : 0.1 (paramètre de température pour le contrôle de la diversité des prédictions)
+* top_p : 0.9 (paramètre de filtrage pour le contrôle de la diversité des prédictions)
 
 ## Tentatives
 Nous avons tentés de nombreux prompt et comparé leur taux d'accuracy moyen. Voici nos différents essais avec leur taux d'accuracy moyen à la suite : 
