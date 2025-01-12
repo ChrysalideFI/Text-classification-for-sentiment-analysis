@@ -167,6 +167,6 @@ Répondez uniquement en JSON :
     
 ## Auteurs
 
-- [@Juliette012](https://www.github.com/Juliette012)
-- [@ChrysalideFI](https://www.github.com/ChrysalideFI)
+- [@Juliette012](https://www.github.com/Juliette012) Juliette Dartois
+- [@ChrysalideFI](https://www.github.com/ChrysalideFI) Montana Katz
 
