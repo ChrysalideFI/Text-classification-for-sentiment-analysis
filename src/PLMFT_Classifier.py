@@ -139,6 +139,11 @@ class PLMFTClassifier(torch.nn.Module):
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
+        #Teste le dataloader pour voir s'il fonctionne  
+        for b in train_loader:
+            print(b)
+            break
+
         #Optimiseur
         optimizer = torch.optim.AdamW(self.parameters(), lr=learning_rate)
 
@@ -151,8 +156,21 @@ class PLMFTClassifier(torch.nn.Module):
                 print("Batch en cours")
                 optimizer.zero_grad()
                 input_ids, attention_mask, labels = batch['input_ids'].to(device), batch['attention_mask'].to(device), batch['labels'].to(device)
+                
+                 # Vérifiez les dimensions et les types de données des tenseurs
+                print(f"input_ids: {input_ids.shape}, dtype: {input_ids.dtype}")
+                print(f"attention_mask: {attention_mask.shape}, dtype: {attention_mask.dtype}")
+                print(f"labels: {labels.shape}, dtype: {labels.dtype}")
+                
                 outputs = self.forward({'input_ids': input_ids, 'attention_mask': attention_mask})
+                
+                # Vérifiez les dimensions et les types de données des sorties
+                print(f"outputs: {outputs.shape}, dtype: {outputs.dtype}")
+                
                 loss = self.compute_loss(outputs, labels)
+                
+                print(f"loss: {loss.item()}")
+
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item()

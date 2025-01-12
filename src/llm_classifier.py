@@ -37,22 +37,24 @@ from config import Config
 # """
 #AVG MACRO ACC: 78.34 TOTAL EXEC TIME: 568.2
 
-# _PROMPT_TEMPLATE = """Analysez l'avis suivant :
-# "{{text}}"
-# Déterminez si les aspects suivants sont exprimés et leur opinion correspondante : 
-# - Prix
-# - Cuisine
-# - Service
-# - Ambiance.
-# Utilisez ces valeurs : "Positive", "Négative", "Neutre", "Non exprimée".
-# Répondez uniquement en JSON :
-# {
-#   "Prix": "valeur",
-#   "Cuisine": "valeur",
-#   "Service": "valeur",
-#   "Ambiance": "valeur"
-# }
-# """
+_PROMPT_TEMPLATE = """Analysez l'avis suivant :
+"{{text}}"
+Déterminez si les aspects suivants sont exprimés et leur opinion correspondante : 
+- Prix
+- Cuisine
+- Service
+- Ambiance.
+Utilisez ces valeurs : "Positive", "Négative", "Neutre", "NE". 
+"NE" signifie que l'opinion n'est pas exprimée sur cet aspect.
+
+Répondez uniquement en JSON :
+{
+  "Prix": "valeur",
+  "Cuisine": "valeur",
+  "Service": "valeur",
+  "Ambiance": "valeur"
+}
+"""
 # AVG MACRO ACC: 82.5 TOTAL EXEC TIME: 602.3
 
 #_PROMPT_TEMPLATE = """Voici un exemple d’analyse :
