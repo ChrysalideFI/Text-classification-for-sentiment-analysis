@@ -36,6 +36,7 @@ _PROMPT_TEMPLATE = """Considérez l'avis suivant :
   "Ambiance": "valeur"
  }
  """
+
 AVG MACRO ACC: 78.34
 
 _PROMPT_TEMPLATE = """Analysez l'avis suivant :
@@ -56,6 +57,7 @@ Répondez uniquement en JSON :
   "Ambiance": "valeur"
 }
 """
+
 AVG MACRO ACC: 82.5
 
 _PROMPT_TEMPLATE = """Voici un exemple d’analyse :
@@ -77,6 +79,7 @@ Répondez en JSON :
   "Ambiance": "valeur"
 }
 """
+
 AVG MACRO ACC: 42.5
 
 _PROMPT_TEMPLATE = """Considérez l'avis :
@@ -91,6 +94,7 @@ Format de réponse strictement en JSON, maximum 4 lignes :
   "Ambiance": "valeur"
 }
 """
+
 AVG MACRO ACC: 58.34
 
 _PROMPT_TEMPLATE = """Voici un avis à analyser :
@@ -113,6 +117,7 @@ Assurez-vous que chaque aspect a exactement une valeur. Répondez uniquement en 
   "Ambiance": "valeur"
 }
 """
+
 AVG MACRO ACC: 74.17
 
 _PROMPT_TEMPLATE = """Exemple d'analyse :
@@ -134,6 +139,7 @@ Répondez uniquement en JSON dans ce format strict :
   "Ambiance": "valeur"
 }
 """
+
 AVG MACRO ACC: 73.34 
 
 ## Résultats
